@@ -19,7 +19,8 @@ import sys
 # Do not leave any blank area about the lines, they have to be crossed. and pay attention to
 # small area that might have circle.
 
-input_images_dir = 'C:\\xyq\\splitGraph\\example'  # file format should be '*.tif'
+# input_images_dir = 'C:\\xyq\\splitGraph\\example'  # file format should be '*.tif'
+input_images_dir = 'G:\\qian\\code\\splitGraph\\example'  # file format should be '*.tif'
 output_images_names_prefix = ['VZ', 'ISVZ', 'OSVZ', 'IZ+CP']  # output filename rules, from the inside out.
 
 
@@ -37,7 +38,8 @@ def init():
 
 
 def split_graph(file_name, output_dir):
-    image = cv2.imread(file_name)
+    file = input_images_dir + '\\' + file_name
+    image = cv2.imread(file)
     b, g, r = cv2.split(image)
     tmp_image = r
 
@@ -46,7 +48,7 @@ def split_graph(file_name, output_dir):
     cnts = imutils.grab_contours(tmp_cnts)
 
     # 0 means clockwise, 1 means counterclockwise
-    save_splits(image, cnts, output_dir, 0)
+    # save_splits(image, cnts, output_dir, 0)
 
     num = 0
     color = [255, 255, 255]
@@ -57,7 +59,7 @@ def split_graph(file_name, output_dir):
         tmp_result = cv2.bitwise_and(image, mask)
         try:
             result = rect_splits(tmp_result, c)
-            if not(type(result) is str) and not(result == ''):
+            if not(result == ''):
                 num += 1
                 cv2.imwrite(output_dir + '/temp' + str(num) + '.png', result)
         except BaseException:
