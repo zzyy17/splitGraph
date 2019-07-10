@@ -13,7 +13,7 @@ def is_contour_bad(c):
     return len(approx) > 3
 
 # load the shapes image, convert it to grayscale, and edge edges in the image
-image = cv2.imread('test_new.tif')
+image = cv2.imread('new.png')
 b, g, r = cv2.split(image)
 cv2.imwrite('new_r.png', r)
 tmp_image = r
