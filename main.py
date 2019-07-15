@@ -22,7 +22,7 @@ import operator
 # small area that might have circle.
 
 # input_images_dir = 'C:\\xyq\\splitGraph\\example'  # file format should be '*.tif'
-input_images_dir = 'E:\\zhou\\example'  # file format should be '*.tif'
+input_images_dir = 'C:\\xyq\\splitGraph\\example'  # file format should be '*.tif'
 output_images_names_prefix = ['VZ', 'ISVZ', 'OSVZ', 'IZ', 'CP']  # output filename rules, from the inside out.
 list_arc_len = []  # store the arclength of all contours
 cnts_list = []
@@ -78,8 +78,10 @@ def split_graph(file_name, output_dir, output_dir_clockwise, output_dir_counterc
             if not(result == ''):
                 # arc_len_tmp = cv2.arcLength(c, True)
                 (cx, cy), radius = cv2.minEnclosingCircle(c)
-                cv2.circle(img, radius, radius, (0, 255, 0), 2)
+                center = (int(cx), int(cy))
+                cv2.circle(tmp_result, center, int(radius), (0, 0, 0), 2)
                 nb = b[int(cx), int(cy)]
+                cv2.circle(tmp_result, center, 20, (255, 255, 255), 2)
                 # if nb == 50:
                 #     i_seq = 0
                 # elif nb == 100:
