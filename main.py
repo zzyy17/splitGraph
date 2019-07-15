@@ -16,16 +16,18 @@ import os
 import sys
 import csv
 import operator
+import shutil
 
 # For every original image, generate a folder named by it's filename to store it's split images
 # Do not leave any blank area about the lines, they have to be crossed. and pay attention to
 # small area that might have circle.
 
 # input_images_dir = 'C:\\xyq\\splitGraph\\example'  # file format should be '*.tif'
-input_images_dir = 'C:\\xyq\\splitGraph\\example'  # file format should be '*.tif'
+input_images_dir = 'E:\\zn test'  # file format should be '*.tif'
 output_images_names_prefix = ['VZ', 'ISVZ', 'OSVZ', 'IZ', 'CP']  # output filename rules, from the inside out.
 list_arc_len = []  # store the arclength of all contours
 cnts_list = []
+
 
 def init():
     """"
@@ -40,15 +42,14 @@ def init():
     return result_list_files
 
 
-def split_graph(file_name, output_dir, output_dir_clockwise, output_dir_counterclockwise):
+def split_graph(file_name, output_dir, output_dir_clockwise, output_dir_counterclockwise, output_images_dir_temp):
     file = input_images_dir + '\\' + file_name
     print(file)
     image = cv2.imread(file)
     b, g, r = cv2.split(image)
 
-
     # find contours in the image and initialize the mask that will be used to remove the bad contours
-    tmp_cnts = cv2.findContours(r.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    tmp_cnts = cv2.findContours(r.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(tmp_cnts)
 
     csv_list = []
@@ -68,7 +69,11 @@ def split_graph(file_name, output_dir, output_dir_clockwise, output_dir_counterc
 
     nu = 0
     for c in cnts_list:
-        tmp_image_g = g
+        nu += 1
+        if nu == 1:
+            continue
+        tmp_image_g = g.copy()
+        tmp_image_b = b.copy()
         cv2.drawContours(tmp_image_g, [c], -1, (255, 255, 255), 1)
         mask = np.zeros(tmp_image_g.shape).astype(tmp_image_g.dtype)
         cv2.fillPoly(mask, [c], color)
@@ -78,49 +83,54 @@ def split_graph(file_name, output_dir, output_dir_clockwise, output_dir_counterc
             if not(result == ''):
                 # arc_len_tmp = cv2.arcLength(c, True)
                 (cx, cy), radius = cv2.minEnclosingCircle(c)
-                center = (int(cx), int(cy))
-                cv2.circle(tmp_result, center, int(radius), (0, 0, 0), 2)
-                nb = b[int(cx), int(cy)]
-                cv2.circle(tmp_result, center, 20, (255, 255, 255), 2)
-                # if nb == 50:
-                #     i_seq = 0
-                # elif nb == 100:
-                #     i_seq = 1
-                # elif nb == 150:
-                #     i_seq = 2
-                # elif nb == 200:
-                #     i_seq = 3
-                # elif nb == 250:
-                #     i_seq = 4
-                # else:
-                #     i_seq = -1
+                # center = (int(cx), int(cy))
+                # radius = int(radius)
+                # cv2.circle(tmp_result, center, radius, (255, 255, 255), 3)
+                nb = tmp_image_b[int(cy), int(cx)]
+                # cv2.circle(tmp_result, center, 20, (255, 255, 255), 10)
+                if nb == 50:
+                    i_seq = 0
+                elif nb == 100:
+                    i_seq = 1
+                elif nb == 150:
+                    i_seq = 2
+                elif nb == 200:
+                    i_seq = 3
+                elif nb == 250:
+                    i_seq = 4
+                else:
+                    i_seq = 0
 
-                nu += 1
-                # if not (arc_len_tmp == list_arc_len[lens - 1]):
-                # print('nu: %d: (x: %d, y: %d) nb: %d, ng: %d, nr: %d' % (nu, cx, cy, nb, ng, nr))
-                print('nu: %d, nb: %d' % (nu, nb))
-                if True:
-                    num_seq[0] += 1
+                if i_seq >= 0:
+                    num_seq[i_seq] += 1
                     if method == 'left-to-right':
-                        cv2.imwrite(output_dir_clockwise + '//' + output_images_names_prefix[0] + '_' + str(num_seq[0]).zfill(2) + '.tif', tmp_result)
-                        # file_name = output_images_names_prefix[i_seq] + '_' + str(num_seq[i_seq]).zfill(2)
-                        # area_num = cv2.contourArea(c, False)
-                        # pts = Points(file_name, area_num * 0.325 * 0.325)
-                        # csv_list.append(pts)
-
+                        cv2.imwrite(output_dir_clockwise + '//' + output_images_names_prefix[i_seq] + '_' + str(num_seq[i_seq]).zfill(2) + '.tif', result)
+                        cv2.imwrite(output_images_dir_temp + '//' + output_images_names_prefix[i_seq] + '_' + str(
+                            num_seq[i_seq]).zfill(2) + '.tif', tmp_result)
+                        file_name = output_images_names_prefix[i_seq] + '_' + str(num_seq[i_seq]).zfill(2)
+                        area_num = cv2.contourArea(c, False)
+                        pts = Points(file_name, area_num * 0.325 * 0.325)
+                        csv_list.append(pts)
+                        pass
                     elif method == 'right-to-left':
-                        # cv2.imwrite(output_dir_counterclockwise + '//' + output_images_names_prefix[i_seq] + '_' + str(num_seq[i_seq]).zfill(2) + '.tif', tmp_result)
                         pass
         except Exception as ex:
             print(ex)
-            sys.exit(0)
 
-    # csv_list.sort(key=operator.attrgetter('image_name'))
-    # # generate csv file to store area information
-    # with open(output_dir + '/area.csv', mode='w', encoding='utf8', newline='') as area_write:
-    #     employee_writer = csv.writer(area_write, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-    #     for iter in csv_list:
-    #         employee_writer.writerow([iter.image_name, iter.area_num])
+    # store files to counterclockwise folder
+    files = os.listdir(output_dir_clockwise)
+    for i in files:
+        if os.path.splitext(i)[1] == '.tif':
+            file_name = os.path.splitext(i)[0]
+            num_seq = int(lens/5) + 1 - int(file_name[-2:])
+            shutil.copyfile(output_dir_clockwise + '\\' + i, output_dir_counterclockwise + '//' + file_name[:-2] + str(num_seq).zfill(2) + '.tif')
+
+    csv_list.sort(key=operator.attrgetter('image_name'))
+    # generate csv file to store area information
+    with open(output_dir + '/area.csv', mode='w', encoding='utf8', newline='') as area_write:
+        employee_writer = csv.writer(area_write, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        for iter in csv_list:
+            employee_writer.writerow([iter.image_name, iter.area_num])
 
 
 def rect_splits(image, contours):
@@ -142,6 +152,7 @@ def sort_splits(image, cnts, output_dir):
     # clone = image.copy()
     # loop over the sorted contours and label them
     ll = 0
+    cnts_list.clear()
     try:
         for (i, c) in enumerate(cnts):
             (x, y, w, h) = cv2.boundingRect(c)
@@ -178,8 +189,10 @@ def process():
 
         output_images_dir_clockwise = input_images_dir + '\\' + file_name + '\\' + 'clockwise'
         output_images_dir_counterclockwise = input_images_dir + '\\' + file_name + '\\' + 'counterclockwise'
+        output_images_dir_temp = input_images_dir + '\\' + file_name + '\\' + 'temp'
         is_exists_1 = os.path.exists(output_images_dir_clockwise)
         is_exists_2 = os.path.exists(output_images_dir_counterclockwise)
+        is_exists_3 = os.path.exists(output_images_dir_temp)
         if not is_exists_1:
             try:
                 os.makedirs(output_images_dir_clockwise)
@@ -193,7 +206,15 @@ def process():
             except OSError as exception:
                 print(exception)
                 sys.exit(0)
-        split_graph(file, output_images_dir, output_images_dir_clockwise, output_images_dir_counterclockwise)
+
+        if not is_exists_3:
+            try:
+                os.makedirs(output_images_dir_temp)
+            except OSError as exception:
+                print(exception)
+                sys.exit(0)
+
+        split_graph(file, output_images_dir, output_images_dir_clockwise, output_images_dir_counterclockwise, output_images_dir_temp)
 
 
 class Points:
@@ -205,3 +226,4 @@ class Points:
 if __name__ == '__main__':
     process()
     cv2.waitKey(0)
+

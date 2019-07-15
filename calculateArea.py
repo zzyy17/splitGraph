@@ -12,9 +12,10 @@ import cv2
 import os
 import sys
 
-input_images_dir = 'E:\\processing'  # file format should be '*.tif'
+input_images_dir = 'E:\\zn test'  # file format should be '*.tif'
 # unit area size
-unit_area_size = 0.325 * 0.325
+unit_area_size = 0.207 * 0.207
+cnts_list = []
 
 def init():
     """"
@@ -31,20 +32,22 @@ def init():
 
 def calculate_area(file, output_images_dir):
     file_name = input_images_dir + '\\' + file
-    print(file)
-    image = cv2.imread(file_name)
-    b, g, r = cv2.split(image)
+    print(file_name)
+    image = cv2.imread(file_name, 0)
 
     # find contours in the image and initialize the mask that will be used to remove the bad contours
-    tmp_cnts = cv2.findContours(r.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    tmp_cnts = cv2.findContours(image.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(tmp_cnts)
     (cnts, boundingBoxes) = contours.sort_contours(cnts, method='left-to-right')
 
-    cv2.imwrite(output_images_dir + '//' + 'res.tif', r)
-    image = r
+    lens = sort_splits(cnts)
+    print('lens: %d' % lens)
+
+    # cv2.imwrite(output_images_dir + '//' + 'res.tif', image)
     nu = 0
-    for c in cnts:
+    for c in cnts_list:
         nu += 1
+        print(nu)
         if nu == 1:
             continue
         try:
@@ -53,10 +56,15 @@ def calculate_area(file, output_images_dir):
                 (cx, cy), radius = cv2.minEnclosingCircle(c)
                 center = (int(cx), int(cy))
                 area_num = cv2.contourArea(c, False) * unit_area_size
+                # print(area_num)
+                #
+                # M = cv2.moments(c)
+                # (cx, cy) = M['m10'] / M['m00'], M['m01'] / M['m00']
+                # center = (int(cx), int(cy))
                 # radius = int(radius)
                 # cv2.circle(image, center, radius, (255, 255, 255), 3)
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                cv2.putText(image, str(round(area_num, 2)), center, font, 1.2, (255, 255, 255), 3)
+                cv2.putText(image, str(round(area_num, 2)) + 'um^2', center, font, 1.2, (255, 255, 255), 2)
         except Exception as exp:
             print(exp)
 
@@ -72,6 +80,33 @@ def rect_splits(image, contours):
     if h > 20 and w > 20:
         rect = image.copy()[y:y + h, x:x + w]
     return rect
+
+
+
+def sort_splits(cnts):
+    """
+    sort splits image by G value
+    """
+    #  sort the contours
+    # clone = image.copy()
+    # loop over the sorted contours and label them
+    ll = 0
+    cnts_list.clear()
+    try:
+        for (i, c) in enumerate(cnts):
+            (x, y, w, h) = cv2.boundingRect(c)
+            if h > 20 and w > 20:
+                # sortedImage = contours.label_contour(clone, c, num)
+                ll += 1
+                cnts_list.append(c)
+                # list_arc_len.append(cv2.arcLength(c, True))
+        # list_arc_len.sort()
+        # show the sorted contour image
+        # cv2.imwrite(output_dir + '/res' + str(seq) + '.tiff', sortedImage)
+    except BaseException:
+        sys.exit(0)
+    return ll
+
 
 
 def process():
@@ -93,6 +128,7 @@ def process():
                 sys.exit(0)
 
         calculate_area(file, output_images_dir)
+
 
 if __name__ == '__main__':
     process()

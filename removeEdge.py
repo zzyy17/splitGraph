@@ -14,7 +14,7 @@ import os
 import sys
 
 
-input_images_dir = 'C:\\xyq\\vz'  # file format should be '*.tif'
+input_images_dir = 'E:\\processing-1\\snipping-brdu\\p2-2\\p2-2-40h.4L brdu_Z000\\counterclockwise\\vz'  # file format should be '*.tif'
 
 
 def init():
