@@ -105,8 +105,8 @@ def split_graph(file_name, output_dir, output_dir_clockwise, output_dir_counterc
                     num_seq[i_seq] += 1
                     if method == 'left-to-right':
                         cv2.imwrite(output_dir_clockwise + '//' + output_images_names_prefix[i_seq] + '_' + str(num_seq[i_seq]).zfill(2) + '.tif', result)
-                        cv2.imwrite(output_images_dir_temp + '//' + output_images_names_prefix[i_seq] + '_' + str(
-                            num_seq[i_seq]).zfill(2) + '.tif', tmp_result)
+                        # cv2.imwrite(output_images_dir_temp + '//' + output_images_names_prefix[i_seq] + '_' + str(
+                        #    num_seq[i_seq]).zfill(2) + '.tif', tmp_result)
                         file_name = output_images_names_prefix[i_seq] + '_' + str(num_seq[i_seq]).zfill(2)
                         area_num = cv2.contourArea(c, False)
                         pts = Points(file_name, area_num * 0.325 * 0.325)
