@@ -74,7 +74,7 @@ def split_graph(file_name, output_dir, output_dir_clockwise, output_dir_counterc
             continue
         tmp_image_g = g.copy()
         tmp_image_b = b.copy()
-        cv2.drawContours(tmp_image_g, [c], -1, (255, 255, 255), 1)
+        cv2.drawContours(tmp_image_g, [c], -1, (0, 0, 0), 1)
         mask = np.zeros(tmp_image_g.shape).astype(tmp_image_g.dtype)
         cv2.fillPoly(mask, [c], color)
         tmp_result = cv2.bitwise_and(tmp_image_g, mask)
