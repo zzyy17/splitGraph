@@ -20,7 +20,7 @@ import shutil
 # small area that might have circle.
 
 # input_images_dir = 'C:\\xyq\\splitGraph\\example'  # file format should be '*.tif'
-input_images_dir = 'E:\\processing-1\\snipping-brdu\\p2-2\\graph'  # file format should be '*.tif'
+input_images_dir = 'C:\\Users\\zmy\\Desktop\\py'  # file format should be '*.tif'
 output_images_names_prefix = ['VZ', 'ISVZ', 'OSVZ', 'IZ', 'CP']  # output filename rules, from the inside out.
 list_arc_len = []  # store the arclength of all contours
 cnts_list = []
