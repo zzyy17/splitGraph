@@ -22,8 +22,8 @@ import operator
 # Do not leave any blank area about the lines, they have to be crossed. and pay attention to
 # small area that might have circle.
 
-input_images_dir = 'C:\\xyq\\splitGraph\\example'  # file format should be '*.tif'
-# input_images_dir = 'G:\\qian\\code\\splitGraph\\example'  # file format should be '*.tif'
+input_images_dir = 'C:\\Users\\zmy\\Desktop\\py'  # file format should be '*.tif'
+# input_images_dir = 'eG:\\qian\\code\\splitGraph\\exampl'  # file format should be '*.tif'
 output_images_names_prefix = ['VZ', 'ISVZ', 'OSVZ', 'IZ', 'CP']  # output filename rules, from the inside out.
 list_arc_len = []  # store the arclength of all contours
 
